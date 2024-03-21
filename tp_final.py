@@ -1,12 +1,13 @@
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 from statsmodels.tsa.seasonal import seasonal_decompose
 
-show = True
+show = False
 
 # Leer el DataFrame desde el archivo CSV
 df = pd.read_csv("Datasets/tp_final/df_max_usage.csv")
 df['DATE'] = pd.to_datetime(df['DATE'])
+df.set_index(df["DATE"])
 
 if show:
     plt.figure(figsize=(15, 6))  # Configurar el tamaño de la figura
@@ -22,24 +23,17 @@ if show:
 
     plt.show()
 
-# Realizar la descomposición de series temporales
-decomposition = seasonal_decompose(df['MAX_USAGE'], model='additive', period=1)
+series = pd.Series(
+    df['MAX_USAGE'].values, index=df['DATE'], name="Consumo Máximo Diario de Electricidad"
+)
 
-# Graficar las cuatro componentes de la descomposición
-plt.subplot(411)
-plt.plot(df['DATE'], decomposition.trend, label='Tendencia')
-plt.legend()
+# res = STL(series, seasonal=3).fit()
+# res.plot()
+# plt.show()
 
-plt.subplot(412)
-plt.plot(df['DATE'], decomposition.seasonal, label='Estacionalidad')
-plt.legend()
-
-plt.subplot(413)
-plt.plot(df['DATE'], decomposition.resid, label='Residuos')
-plt.legend()
-
-plt.subplot(414)
-plt.plot(df['DATE'], decomposition.observed, label='Observado')
-plt.legend()
-
+period = 30
+decomposition = seasonal_decompose(series, model='additive')  # Specify additive model
+decomposition.plot()
 plt.show()
+
+
