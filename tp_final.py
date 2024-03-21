@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 show = False
@@ -32,8 +33,26 @@ series = pd.Series(
 # plt.show()
 
 period = 30
-decomposition = seasonal_decompose(series, model='additive')  # Specify additive model
+decomposition = seasonal_decompose(series, model='additive', period=period)  # Specify additive model
 decomposition.plot()
 plt.show()
 
+# Extraer la tendencia de la descomposición
+trend = decomposition.trend.dropna()
+
+import statsmodels.api as sm
+
+# Ajustar un modelo de regresión lineal
+X = sm.add_constant(np.arange(len(trend)))
+model = sm.OLS(trend, X).fit()
+
+# Visualizar la tendencia y el modelo ajustado
+plt.plot(trend.index, trend.values, label="Tendencia")
+plt.plot(trend.index, model.fittedvalues, label="Modelo ajustado")
+plt.xlabel('Fecha')
+plt.ylabel('Consumo Diario Máximo (kWh)')
+plt.title('Tendencia Observada y Modelo Ajustado')
+plt.legend()
+plt.grid(True)
+plt.show()
 
